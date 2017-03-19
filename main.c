@@ -401,6 +401,7 @@ void process_input(SDL_Event *e, int *quit)
       /* Handle Joystick Button Presses */
       else if( e->type == SDL_JOYBUTTONDOWN)
       {
+        printf("controller: %d button: %d\n",e->which, e->jbutton.button);
         switch( e->jbutton.button) 
         {
           case 0: ;
@@ -409,6 +410,7 @@ void process_input(SDL_Event *e, int *quit)
       }
       else if( e->type == SDL_JOYAXISMOTION)
       {
+        printf("controller: %d, axis: %d, value: %d\n", e->jaxis.which, e->jaxis.axis, e->jaxis.value);
 	//Motion on controller 0 
 	if( e->jaxis.which == 0 ) 
 	{ 
