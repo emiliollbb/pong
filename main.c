@@ -30,7 +30,7 @@ SDL_Window *sdl_window;
 SDL_Renderer* sdl_renderer;
 
 //Game Controller 1 handler 
-SDL_Joystick *sdl_gamepad;
+SDL_Joystick *sdl_gamepad[2];
 
 //Globally used font 
 TTF_Font *number_font = NULL;
@@ -46,8 +46,7 @@ int p2_x;
 int height_p1;
 int height_p2;
 int width;
-int p1_vy;
-int p2_vy;
+int pvy[2];
 int ball_x;
 int ball_y;
 int ball_vx;
@@ -60,11 +59,19 @@ char p2_score_s[10];
 
 void init()
 {
-  SCREEN_WIDTH = 640;
+  int i;
+  
+  SCREEN_WIDTH = 720;
   SCREEN_HEIGHT = 480;
+  //SCREEN_WIDTH = 1920;
+  //SCREEN_HEIGHT = 1080;
+  //SCREEN_WIDTH = 1366;
+  //SCREEN_HEIGHT = 768;
+  
   sdl_window=NULL;
   sdl_renderer = NULL;
-  sdl_gamepad = NULL;
+  sdl_gamepad[0] = NULL;
+  sdl_gamepad[1] = NULL;
   
   //Initialize SDL
   if( SDL_Init( SDL_INIT_VIDEO | SDL_INIT_JOYSTICK ) < 0 )
@@ -85,25 +92,28 @@ void init()
     if( SDL_NumJoysticks() < 1 ) 
     { 
       printf( "Warning: No joysticks connected!\n" ); 
-      
     } 
     else 
-    { 
-      //Load joystick 
-      sdl_gamepad = SDL_JoystickOpen( 0 ); 
-      if( sdl_gamepad == NULL ) 
-      { 
-        printf( "Warning: Unable to open game controller! SDL Error: %s\n", SDL_GetError() ); 
-        
-      } 
+    {
+      printf("%d joysticks connected\n", SDL_NumJoysticks());
+      for(i=0; i<SDL_NumJoysticks(); i++)
+      {
+        //Load joystick 
+        sdl_gamepad[i] = SDL_JoystickOpen(i); 
+        if(sdl_gamepad[i] == NULL ) 
+        { 
+            printf( "Warning: Unable to open game controller %d! SDL Error: %s\n", i, SDL_GetError() ); 
+            
+        }
+      }
       
     }
 
     //Create window
-    sdl_window = SDL_CreateWindow( "SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
+    //sdl_window = SDL_CreateWindow( "SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
 
     // Create window fullscreen 
-    //sdl_window = SDL_CreateWindow( "SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_FULLSCREEN );
+    sdl_window = SDL_CreateWindow( "SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_FULLSCREEN );
     SDL_GetWindowSize(sdl_window, &SCREEN_WIDTH, &SCREEN_HEIGHT);
 
     printf("screen: %d x %d\n", SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -138,6 +148,7 @@ void init()
 
 void close_sdl()
 {
+  int i;
   //Destroy renderer  
   if(sdl_renderer!=NULL)
   {
@@ -150,6 +161,12 @@ void close_sdl()
     // Destroy window
     SDL_DestroyWindow( sdl_window );
     sdl_window=NULL;
+  }
+  
+  for(i=0; i<SDL_NumJoysticks(); i++)
+  {
+    SDL_JoystickClose(sdl_gamepad[i]);
+    sdl_gamepad[i]=NULL;
   }
   
   // Exit SDL
@@ -232,16 +249,17 @@ void sync_render()
 void init_game()
 {
   height_p1=70;
-  height_p2=SCREEN_HEIGHT;
+  //height_p2=SCREEN_HEIGHT;
+  height_p2=70;
   width=15;
   p1_x=10;
   p2_x=SCREEN_WIDTH-10-width;
   p1_y=0;
   p2_y=0;
-  p1_vy=0;
-  p2_vy=0;
+  pvy[0]=0;
+  pvy[1]=0;
   init_ball();
-  p_v=5;
+  p_v=10;
   p1_score=10;
   p2_score=10;
 }
@@ -276,7 +294,7 @@ void render()
   SDL_RenderClear( sdl_renderer );
   
   // Update p1
-  p1_y+=p1_vy;
+  p1_y+=pvy[0];
   if(p1_y>SCREEN_HEIGHT-height_p1)
   {
     p1_y=SCREEN_HEIGHT-height_p1;
@@ -287,7 +305,7 @@ void render()
   }
   
   // Update p2
-  p2_y+=p2_vy;
+  p2_y+=pvy[1];
   if(p2_y>SCREEN_HEIGHT-height_p2)
   {
     p2_y=SCREEN_HEIGHT-height_p2;
@@ -363,63 +381,32 @@ void render()
 void process_input(SDL_Event *e, int *quit)
 {
       //User requests quit
-      if( e->type == SDL_QUIT )
+      if(e->type == SDL_QUIT 
+          // User press ESC or q
+          || e->type == SDL_KEYDOWN && (e->key.keysym.sym=='q' || e->key.keysym.sym == 27)
+          // User press select
+          || e->type == SDL_JOYBUTTONDOWN && e->jbutton.button == 8)
       {
         *quit = 1;
       }
-      //User presses a key 
-      else if( e->type == SDL_KEYDOWN ) 
+      // Axis 0 controls player velocity
+      else if( e->type == SDL_JOYAXISMOTION && e->jaxis.axis == 1)
       {
-        //Select surfaces based on key press 
-        switch( e->key.keysym.sym ) 
-        {
-          case 'q': *quit = 1; break;
-          case 27:  *quit = 1; break;
-          case SDLK_UP: p1_vy=-1*p_v ; break; 
-          case SDLK_DOWN: p1_vy=4; break; 
-          case SDLK_LEFT: ; break; 
-          case SDLK_RIGHT: ; break;
-	  case 'w': p2_vy=-1*p_v; break;
-	  case 's': p2_vy=p_v; break;
-          default: printf("key: %d\n", e->key.keysym.sym); break; 
-             
-        }
+        //printf("controller: %d, axis: %d, value: %d\n", e->jaxis.which, e->jaxis.axis, e->jaxis.value);
+        pvy[e->jaxis.which]=p_v*e->jaxis.value/32767; 
       }
-      else if( e->type == SDL_KEYUP ) 
-      {
-        //Select surfaces based on key press 
-        switch( e->key.keysym.sym ) 
-        {
-          case SDLK_UP: p1_vy=0 ; break; 
-          case SDLK_DOWN: p1_vy=0; break; 
-          case SDLK_LEFT: ; break; 
-          case SDLK_RIGHT: ; break;
-	  case 'w': p2_vy=0; break;
-	  case 's': p2_vy=0; break;
-         }
-      }
-      /* Handle Joystick Button Presses */
+      // Buttons
       else if( e->type == SDL_JOYBUTTONDOWN)
       {
-        printf("controller: %d button: %d\n",e->jbutton.which, e->jbutton.button);
+        //printf("controller: %d button: %d\n",e->jbutton.which, e->jbutton.button);
         switch( e->jbutton.button) 
         {
-          case 0: ;
-          break;
+          case 0: ; break;
+          case 1: ; break;
+          case 2: ; break;
+          case 3: ; break;
+          case 4: ; break;
         }
-      }
-      else if( e->type == SDL_JOYAXISMOTION)
-      {
-        printf("controller: %d, axis: %d, value: %d\n", e->jaxis.which, e->jaxis.axis, e->jaxis.value);
-	//Motion on controller 0 
-	if( e->jaxis.which == 0 ) 
-	{ 
-	  //X axis motion 
-	  if( e->jaxis.axis == 0 ) 
-	  { 
-	    printf("axis: %d\n", e->jaxis.value);
-	  }
-	}
       }
 }
 
