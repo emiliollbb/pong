@@ -100,10 +100,10 @@ void init()
     }
 
     //Create window
-    //sdl_window = SDL_CreateWindow( "SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
+    sdl_window = SDL_CreateWindow( "SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
 
     // Create window fullscreen 
-    sdl_window = SDL_CreateWindow( "SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_FULLSCREEN );
+    //sdl_window = SDL_CreateWindow( "SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_FULLSCREEN );
     SDL_GetWindowSize(sdl_window, &SCREEN_WIDTH, &SCREEN_HEIGHT);
 
     printf("screen: %d x %d\n", SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -401,7 +401,7 @@ void process_input(SDL_Event *e, int *quit)
       /* Handle Joystick Button Presses */
       else if( e->type == SDL_JOYBUTTONDOWN)
       {
-        printf("controller: %d button: %d\n",e->which, e->jbutton.button);
+        printf("controller: %d button: %d\n",e->jbutton.which, e->jbutton.button);
         switch( e->jbutton.button) 
         {
           case 0: ;
