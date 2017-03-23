@@ -56,6 +56,7 @@ int p1_score;
 char p1_score_s[10];
 int p2_score;
 char p2_score_s[10];
+int game_over;
 
 void init()
 {
@@ -262,6 +263,7 @@ void init_game()
   p_v=10;
   p1_score=10;
   p2_score=10;
+  game_over=0;
 }
 
 void init_ball()
@@ -316,8 +318,11 @@ void render()
   }
   
   // Update ball
-  ball_x+=ball_vx;
-  ball_y+=ball_vy;
+  if(!game_over)
+  {
+    ball_x+=ball_vx;
+    ball_y+=ball_vy;
+  }
     
   // Check collisions p1
   if(ball_x>=p1_x && ball_x<=p1_x+width &&  ball_y>=p1_y && ball_y<=p1_y+height_p1)
@@ -346,6 +351,11 @@ void render()
     p2_score--;
     init_ball();
   }
+
+  if(p1_score==0 || p2_score==0)
+  {
+    game_over=1;
+  }
   
   
   SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0xFF, 0xFF, 0xFF );
@@ -359,8 +369,11 @@ void render()
   SDL_RenderFillRect( sdl_renderer, &fillRect2 );
   
   // Draw ball
-  SDL_Rect fillRect3 = {ball_x, ball_y, 10, 10 };
-  SDL_RenderFillRect( sdl_renderer, &fillRect3 );
+  if(!game_over)
+  {
+    SDL_Rect fillRect3 = {ball_x, ball_y, 10, 10 };
+    SDL_RenderFillRect( sdl_renderer, &fillRect3 );
+  }
   
   // Draw counter player 1
   sprintf(p1_score_s, "%02d", p1_score);
