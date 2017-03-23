@@ -57,6 +57,7 @@ char p1_score_s[10];
 int p2_score;
 char p2_score_s[10];
 int game_over;
+int p2;
 
 void init()
 {
@@ -264,6 +265,7 @@ void init_game()
   p1_score=10;
   p2_score=10;
   game_over=0;
+  p2=0;
 }
 
 void init_ball()
@@ -291,6 +293,8 @@ void init_ball()
 
 void render()
 {
+  SDL_Rect sdl_rect;
+
   //Clear screen
   SDL_SetRenderDrawColor( sdl_renderer, 0x00, 0x00, 0x00, 0xFF );
   SDL_RenderClear( sdl_renderer );
@@ -361,12 +365,27 @@ void render()
   SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0xFF, 0xFF, 0xFF );
   
   // Draw p1
-  SDL_Rect fillRect = {p1_x, p1_y, width, height_p1};
-  SDL_RenderFillRect( sdl_renderer, &fillRect );
+  sdl_rect.x=p1_x;
+  sdl_rect.y=p1_y;
+  sdl_rect.w=width;
+  sdl_rect.h=height_p1;
+  SDL_RenderFillRect(sdl_renderer, &sdl_rect);
   
   // Draw p2
   SDL_Rect fillRect2 = {p2_x, p2_y, width, height_p2};
-  SDL_RenderFillRect( sdl_renderer, &fillRect2 );
+  sdl_rect.x=p2_x;
+  sdl_rect.w=width;
+  if(p2)
+  {
+    sdl_rect.y=p2_y;
+    sdl_rect.h=height_p2;
+  }
+  else
+  {
+    sdl_rect.y=0;
+    sdl_rect.h=SCREEN_HEIGHT;
+  }
+  SDL_RenderFillRect( sdl_renderer, &sdl_rect);
   
   // Draw ball
   if(!game_over)
@@ -409,7 +428,7 @@ void process_input(SDL_Event *e, int *quit)
         pvy[e->jaxis.which]=p_v*e->jaxis.value/32767; 
       }
       // Buttons
-      else if( e->type == SDL_JOYBUTTONDOWN)
+      else if( e->type == SDL_JOYBUTTONDOWN && e->jbutton.button<8)
       {
         //printf("controller: %d button: %d\n",e->jbutton.which, e->jbutton.button);
         switch( e->jbutton.button) 
@@ -419,6 +438,23 @@ void process_input(SDL_Event *e, int *quit)
           case 2: ; break;
           case 3: ; break;
           case 4: ; break;
+        }
+      }
+      // Player 2 start and select
+      else if( e->type == SDL_JOYBUTTONDOWN && e->jbutton.button<10 && e->jbutton.which==1)
+      {
+        switch(e->jbutton.button)
+        {
+          case 8: p2=1; break;
+          case 7: p2=0; break;
+        }
+      }
+      // Player 1 start and select
+      else if( e->type == SDL_JOYBUTTONDOWN && e->jbutton.button<10 && e->jbutton.which==0)
+      {
+        switch(e->jbutton.button)
+        {
+          case 8: ; break;
         }
       }
 }
