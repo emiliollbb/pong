@@ -232,7 +232,6 @@ void sync_render()
   ticks = SDL_GetTicks();
   
   render();  
-    printf("%d %d %d %d\n", ball_x, ball_y, ball_vx, ball_vy); 
   
   remaining = ticks;
   remaining = remaining + 16 - SDL_GetTicks();
@@ -252,7 +251,6 @@ void sync_render()
 void init_game()
 {
   height_p1=70;
-  height_p1=SCREEN_HEIGHT;
   height_p2=70;
   width=15;
   p1_x=10;
@@ -312,23 +310,14 @@ void render()
   }
   
   // Update p2
-  if(p2)
+  p2_y+=pvy[1];
+  if(p2_y>SCREEN_HEIGHT-height_p2)
   {
-    p2_y+=pvy[1];
-    if(p2_y>SCREEN_HEIGHT-height_p2)
-    {
-      p2_y=SCREEN_HEIGHT-height_p2;
-    }
-    if(p2_y<0)
-    {
-      p2_y=0;
-    }
-    height_p2=height_p1;
+    p2_y=SCREEN_HEIGHT-height_p2;
   }
-  else
+  if(p2_y<0)
   {
     p2_y=0;
-    height_p2=SCREEN_HEIGHT;
   }
   
   // Update ball
@@ -360,10 +349,14 @@ void render()
     init_ball();
   }
   // Check collision right wall
-  if(ball_x>SCREEN_WIDTH)
+  if(p2 && ball_x>SCREEN_WIDTH)
   {
     p2_score--;
     init_ball();
+  }
+  else if(ball_x>SCREEN_WIDTH) 
+  {
+    ball_vx=-1*ball_vx;
   }
 
   if(p1_score==0 || p2_score==0)
@@ -382,11 +375,14 @@ void render()
   SDL_RenderFillRect(sdl_renderer, &sdl_rect);
   
   // Draw p2
-  sdl_rect.x=p2_x;
+  if(p2)
+  {
+    sdl_rect.x=p2_x;
   sdl_rect.y=p2_y;
   sdl_rect.w=width;
   sdl_rect.h=height_p2;
   SDL_RenderFillRect(sdl_renderer, &sdl_rect);
+  }
   
   // Draw ball
   if(!game_over)
@@ -403,12 +399,18 @@ void render()
   loadTFTTexture(&texture_text_p1, number_font, p1_score_s);
   SDL_Rect number_rect = {50,50, texture_text_p1.width, texture_text_p1.height};
   SDL_RenderCopy(sdl_renderer, texture_text_p1.texture, NULL, &number_rect);
+  SDL_DestroyTexture(texture_text_p1.texture);
+
   
   // Draw counter player 2
+  if(p2)
+  {
   sprintf(p2_score_s, "%02d", p2_score);
   loadTFTTexture(&texture_text_p2, number_font, p2_score_s);
   SDL_Rect number_rect2 = {SCREEN_WIDTH-200,50, texture_text_p2.width, texture_text_p2.height};
   SDL_RenderCopy(sdl_renderer, texture_text_p2.texture, NULL, &number_rect2);
+  SDL_DestroyTexture(texture_text_p2.texture);
+  }
   
   //Update screen
   SDL_RenderPresent( sdl_renderer );
@@ -420,8 +422,8 @@ void process_input(SDL_Event *e, int *quit)
       if(e->type == SDL_QUIT 
           // User press ESC or q
           || e->type == SDL_KEYDOWN && (e->key.keysym.sym=='q' || e->key.keysym.sym == 27)
-          // User press select
-          || e->type == SDL_JOYBUTTONDOWN && e->jbutton.button == 8)
+          // User 1 press select
+          || e->type == SDL_JOYBUTTONDOWN && e->jbutton.which==0 && e->jbutton.button == 8)
       {
         *quit = 1;
       }
@@ -449,8 +451,8 @@ void process_input(SDL_Event *e, int *quit)
       {
         switch(e->jbutton.button)
         {
-          case 8: p2=1; break;
-          case 7: p2=0; break;
+          case 9: p2=1; break;
+          case 8: p2=0; break;
         }
       }
       // Player 1 start and select
