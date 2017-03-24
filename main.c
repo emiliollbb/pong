@@ -232,6 +232,7 @@ void sync_render()
   ticks = SDL_GetTicks();
   
   render();  
+    printf("%d %d %d %d\n", ball_x, ball_y, ball_vx, ball_vy); 
   
   remaining = ticks;
   remaining = remaining + 16 - SDL_GetTicks();
@@ -251,7 +252,7 @@ void sync_render()
 void init_game()
 {
   height_p1=70;
-  //height_p2=SCREEN_HEIGHT;
+  height_p1=SCREEN_HEIGHT;
   height_p2=70;
   width=15;
   p1_x=10;
@@ -311,14 +312,23 @@ void render()
   }
   
   // Update p2
-  p2_y+=pvy[1];
-  if(p2_y>SCREEN_HEIGHT-height_p2)
+  if(p2)
   {
-    p2_y=SCREEN_HEIGHT-height_p2;
+    p2_y+=pvy[1];
+    if(p2_y>SCREEN_HEIGHT-height_p2)
+    {
+      p2_y=SCREEN_HEIGHT-height_p2;
+    }
+    if(p2_y<0)
+    {
+      p2_y=0;
+    }
+    height_p2=height_p1;
   }
-  if(p2_y<0)
+  else
   {
     p2_y=0;
+    height_p2=SCREEN_HEIGHT;
   }
   
   // Update ball
@@ -375,16 +385,8 @@ void render()
   SDL_Rect fillRect2 = {p2_x, p2_y, width, height_p2};
   sdl_rect.x=p2_x;
   sdl_rect.w=width;
-  if(p2)
-  {
-    sdl_rect.y=p2_y;
-    sdl_rect.h=height_p2;
-  }
-  else
-  {
-    sdl_rect.y=0;
-    sdl_rect.h=SCREEN_HEIGHT;
-  }
+  sdl_rect.y=0;
+  sdl_rect.h=SCREEN_HEIGHT;
   SDL_RenderFillRect( sdl_renderer, &sdl_rect);
   
   // Draw ball
