@@ -382,18 +382,20 @@ void render()
   SDL_RenderFillRect(sdl_renderer, &sdl_rect);
   
   // Draw p2
-  SDL_Rect fillRect2 = {p2_x, p2_y, width, height_p2};
   sdl_rect.x=p2_x;
+  sdl_rect.y=p2_y;
   sdl_rect.w=width;
-  sdl_rect.y=0;
-  sdl_rect.h=SCREEN_HEIGHT;
-  SDL_RenderFillRect( sdl_renderer, &sdl_rect);
+  sdl_rect.h=height_p2;
+  SDL_RenderFillRect(sdl_renderer, &sdl_rect);
   
   // Draw ball
   if(!game_over)
   {
-    SDL_Rect fillRect3 = {ball_x, ball_y, 10, 10 };
-    SDL_RenderFillRect( sdl_renderer, &fillRect3 );
+    sdl_rect.x=ball_x;
+    sdl_rect.y=ball_y;
+    sdl_rect.w=10;
+    sdl_rect.h=10;
+    SDL_RenderFillRect(sdl_renderer, &sdl_rect);
   }
   
   // Draw counter player 1
