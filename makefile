@@ -1,6 +1,3 @@
-#OBJS specifies which files to compile as part of the project 
-OBJS = main.c 
-
 #CC specifies which compiler we're using 
 CC = gcc 
 
@@ -11,11 +8,16 @@ COMPILER_FLAGS = -w
 #LINKER_FLAGS specifies the libraries we're linking against 
 LINKER_FLAGS = -lSDL2 -lSDL2_image -lSDL2_ttf
 
-#OBJ_NAME specifies the name of our exectuable 
-OBJ_NAME = main 
-
 #This is the target that compiles our executable 
 
-all : $(OBJS)
-	$(CC) $(OBJS) $(COMPILER_FLAGS) $(LINKER_FLAGS) -o $(OBJ_NAME)
+all: main pong1p pong2p
+
+main : main.c
+	$(CC) main.c $(COMPILER_FLAGS) $(LINKER_FLAGS) -o main
+
+pong1p: pong1p.c
+	$(CC) pong1p.c $(COMPILER_FLAGS) $(LINKER_FLAGS) -o pong1p 
+
+pong2p: pong2p.c
+	$(CC) pong2p.c $(COMPILER_FLAGS) $(LINKER_FLAGS) -o pong2p 
 
