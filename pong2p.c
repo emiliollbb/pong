@@ -29,6 +29,9 @@ SDL_Window *sdl_window;
 //The window renderer
 SDL_Renderer* sdl_renderer;
 
+// Display mode
+SDL_DisplayMode sdl_display_mode;
+
 //Game Controller 1 handler 
 SDL_Joystick *sdl_gamepad[2];
 
@@ -109,6 +112,14 @@ void init()
       }
       
     }
+    
+    // Get display mode
+    if (SDL_GetDesktopDisplayMode(0, &sdl_display_mode) != 0) {
+      printf("SDL_GetDesktopDisplayMode failed: %s", SDL_GetError());
+      exit(-1);
+    }
+    SCREEN_WIDTH=sdl_display_mode.w;
+    SCREEN_HEIGHT=sdl_display_mode.h;
 
     //Create window
     //sdl_window = SDL_CreateWindow( "SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
