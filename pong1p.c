@@ -29,6 +29,9 @@ SDL_Window *sdl_window;
 //The window renderer
 SDL_Renderer* sdl_renderer;
 
+// Display mode
+SDL_DisplayMode sdl_display_mode;
+
 //Game Controller 1 handler 
 SDL_Joystick *sdl_gamepad;
 
@@ -102,11 +105,13 @@ void init()
       
     }
 
-SDL_DisplayMode dm;
-if (SDL_GetDesktopDisplayMode(0, &dm) != 0) {
-    SDL_Log("SDL_GetDesktopDisplayMode failed: %s", SDL_GetError());
-    return 1;
-}
+    // Get display mode
+    if (SDL_GetDesktopDisplayMode(0, &sdl_display_mode) != 0) {
+      printf("SDL_GetDesktopDisplayMode failed: %s", SDL_GetError());
+      exit(-1);
+    }
+    SCREEN_WIDTH=sdl_display_mode.w;
+    SCREEN_HEIGHT=sdl_display_mode.h;
 
     //Create window
     //sdl_window = SDL_CreateWindow( "SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
@@ -142,7 +147,7 @@ if (SDL_GetDesktopDisplayMode(0, &dm) != 0) {
     SDL_SetRenderDrawColor( sdl_renderer, 0xFF, 0xFF, 0xFF, 0xFF );
     
     
-  }
+  
 }
 
 void close_sdl()
@@ -164,8 +169,8 @@ void close_sdl()
   
   for(i=0; i<SDL_NumJoysticks(); i++)
   {
-    SDL_JoystickClose(sdl_gamepad[i]);
-    sdl_gamepad[i]=NULL;
+    SDL_JoystickClose(sdl_gamepad);
+    sdl_gamepad=NULL;
   }
   
   // Exit SDL
@@ -382,36 +387,6 @@ void process_input(SDL_Event *e, int *quit)
       {
         //printf("controller: %d, axis: %d, value: %d\n", e->jaxis.which, e->jaxis.axis, e->jaxis.value);
         pvy=p_v*e->jaxis.value/32767; 
-      }
-      // Buttons
-      else if( e->type == SDL_JOYBUTTONDOWN && e->jbutton.button<8)
-      {
-        //printf("controller: %d button: %d\n",e->jbutton.which, e->jbutton.button);
-        switch( e->jbutton.button) 
-        {
-          case 0: ; break;
-          case 1: ; break;
-          case 2: ; break;
-          case 3: ; break;
-          case 4: ; break;
-        }
-      }
-      // Player 2 start and select
-      else if( e->type == SDL_JOYBUTTONDOWN && e->jbutton.button<10 && e->jbutton.which==1)
-      {
-        switch(e->jbutton.button)
-        {
-          case 9: p2=1; break;
-          case 8: p2=0; break;
-        }
-      }
-      // Player 1 start and select
-      else if( e->type == SDL_JOYBUTTONDOWN && e->jbutton.button<10 && e->jbutton.which==0)
-      {
-        switch(e->jbutton.button)
-        {
-          case 8: ; break;
-        }
       }
 }
 
