@@ -18,6 +18,7 @@ void render();
 void loadTFTTexture(struct TTF_texture *texture, TTF_Font *font, char* text);
 void process_input(SDL_Event *e, int *quit);
 void init_ball();
+void increment_ball_speed();
 
 //Screen dimension constants
 int SCREEN_WIDTH;
@@ -286,6 +287,26 @@ void init_ball()
   }
 }
 
+void increment_ball_speed()
+{
+  if(ball_vy>0)
+  {
+    ball_vy++;
+  }
+  if(ball_vy<0)
+  {
+    ball_vy--;
+  }
+  if(ball_vx>0)
+  {
+    ball_vx++;
+  }
+  if(ball_vx<0)
+  {
+    ball_vx--;
+  }
+}
+
 void render()
 {
   SDL_Rect sdl_rect;
@@ -316,6 +337,7 @@ void render()
   if(ball_x>=p1_x && ball_x<=p1_x+width &&  ball_y>=p1_y && ball_y<=p1_y+height_p1)
   {
     ball_vx=-1*ball_vx;
+    increment_ball_speed();
   }
   // Check collision top and bottom wall
   if(ball_y<0 || ball_y>SCREEN_HEIGHT)
