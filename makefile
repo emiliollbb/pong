@@ -21,3 +21,9 @@ pong1p: pong1p.c
 pong2p: pong2p.c
 	$(CC) pong2p.c $(COMPILER_FLAGS) $(LINKER_FLAGS) -o pong2p 
 
+test: test.c
+	$(CC) test.c $(COMPILER_FLAGS) $(LINKER_FLAGS) -o test 
+
+
+test2: test2.c
+	$(CC) test2.c $(COMPILER_FLAGS) $(LINKER_FLAGS) -o test2 
