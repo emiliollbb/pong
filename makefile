@@ -10,7 +10,7 @@ LINKER_FLAGS = -lSDL2 -lSDL2_image -lSDL2_ttf
 
 #This is the target that compiles our executable 
 
-all: main pong1p pong2p
+all: main pong1p pong2p test test2
 
 main : main.c
 	$(CC) main.c $(COMPILER_FLAGS) $(LINKER_FLAGS) -o main

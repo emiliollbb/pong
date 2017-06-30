@@ -3,11 +3,17 @@
  * 
  * **********/
 
+#define BALLS_NUM 100
+
 #include <SDL2/SDL.h>
 #include <stdio.h>
 #include <time.h>
 #include <math.h>
 
+struct sball
+{
+  int x, y, vx, vy;
+};
 
 void init();
 void close_sdl();
@@ -32,10 +38,7 @@ SDL_Joystick *sdl_gamepad[2];
 
 
 /** GAME DATA **/
-int ball_x;
-int ball_y;
-int ball_vx;
-int ball_vy;
+struct sball balls[BALLS_NUM];
 
 void init()
 {
@@ -179,60 +182,48 @@ void init_game()
 
 void init_ball()
 {
-  ball_x=SCREEN_WIDTH/2;
-  ball_y=SCREEN_HEIGHT/2;
-  if(rand()%2==0)
-  {
-    ball_vx=5;
-  }
-  else
-  {
-    ball_vx=-5;
-  }
+  int i;
+  double aux;
   
-  if(rand()%2==0)
+  for(i=0; i<BALLS_NUM; i++)
   {
-    ball_vy=5;
-  }
-  else
-  {
-    ball_vy=-5;
+    balls[i].x=rand()%SCREEN_WIDTH;
+    balls[i].y=10;
+    balls[i].vx=0;
+    balls[i].vy=rand()%10+5;
   }
 }
 
 void render()
 {
+  int i;
   SDL_Rect sdl_rect;
 
   //Clear screen
   SDL_SetRenderDrawColor( sdl_renderer, 0x00, 0x00, 0x00, 0xFF );
   SDL_RenderClear( sdl_renderer );
-    
-  // Update ball
-  ball_x+=ball_vx;
-  ball_y+=ball_vy;
-      
-  // Check collisions left wall
-  if(ball_x<0)
-  {
-    ball_vx=5;
-  }
-  // Check collision right wall
-  if(ball_x>SCREEN_WIDTH)
-  {
-    ball_vx=-1*ball_vx;
-  }
-  // Check collision top and bottom wall
-  if(ball_y<0 || ball_y>SCREEN_HEIGHT)
-  {
-    ball_vy=-1*ball_vy;
-  }
-  
-  
   SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0xFF, 0xFF, 0xFF );
+    
+  for(i=0; i<BALLS_NUM; i++)
+  {
+    // Update ball
+    balls[i].x+=balls[i].vx;
+    balls[i].y+=balls[i].vy;
+        
+    // Check collision top and bottom wall
+    if(balls[i].y>SCREEN_HEIGHT)
+    {
+      balls[i].y=0;
+    }
+    
+    // Draw ball
+    sdl_rect.x=balls[i].x;
+    sdl_rect.y=balls[i].y;
+    sdl_rect.w=10;
+    sdl_rect.h=10;
+    SDL_RenderFillRect(sdl_renderer, &sdl_rect);
   
-  SDL_Rect fillRect3 = {ball_x, ball_y, 10, 10 };
-  SDL_RenderFillRect( sdl_renderer, &fillRect3 );
+  }  
   
   //Update screen
   SDL_RenderPresent( sdl_renderer );
