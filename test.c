@@ -27,6 +27,9 @@ SDL_Window *sdl_window;
 //The window renderer
 SDL_Renderer* sdl_renderer;
 
+// Gamepads
+SDL_Joystick *sdl_gamepad[2];
+
 
 /** GAME DATA **/
 int ball_x;
@@ -49,7 +52,7 @@ void init()
   sdl_renderer = NULL;
   
   //Initialize SDL
-  if( SDL_Init( SDL_INIT_VIDEO) < 0 )
+  if( SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK) < 0 )
   {
     printf( "SDL could not initialize! SDL Error: %s\n", SDL_GetError() );
     exit(-1);
@@ -89,6 +92,27 @@ void init()
     //Initialize renderer color
     SDL_SetRenderDrawColor( sdl_renderer, 0xFF, 0xFF, 0xFF, 0xFF );
     
+    //Check for joysticks 
+    if( SDL_NumJoysticks() < 1 ) 
+    { 
+      printf( "Warning: No joysticks connected!\n" ); 
+    } 
+    else 
+    {
+      printf("%d joysticks connected\n", SDL_NumJoysticks());
+      for(i=0; i<SDL_NumJoysticks(); i++)
+      {
+        //Load joystick 
+        sdl_gamepad[i] = SDL_JoystickOpen(i); 
+        if(sdl_gamepad[i] == NULL ) 
+        { 
+            printf( "Warning: Unable to open game controller %d! SDL Error: %s\n", i, SDL_GetError() ); 
+            
+        }
+      }
+      
+    }
+    
     
   }
 }
@@ -96,6 +120,14 @@ void init()
 void close_sdl()
 {
   int i;
+  
+  // Close gamepads
+  for(i=0; i<SDL_NumJoysticks(); i++)
+  {
+    SDL_JoystickClose(sdl_gamepad[i]);
+    sdl_gamepad[i]=NULL;
+  }
+  
   //Destroy renderer  
   if(sdl_renderer!=NULL)
   {
@@ -213,7 +245,7 @@ void process_input(SDL_Event *e, int *quit)
           // User press ESC or q
           || e->type == SDL_KEYDOWN && (e->key.keysym.sym=='q' || e->key.keysym.sym == 27)
           // User press select
-          || e->type == SDL_JOYBUTTONDOWN && e->jbutton.button == 8)
+          || e->type == SDL_JOYBUTTONDOWN)
       {
         *quit = 1;
       }
