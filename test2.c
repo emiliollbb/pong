@@ -3,7 +3,7 @@
  * 
  * **********/
 
-#define BALLS_NUM 100
+#define BALLS_NUM 150
 
 #include <SDL2/SDL.h>
 #include <stdio.h>
@@ -188,9 +188,9 @@ void init_ball()
   for(i=0; i<BALLS_NUM; i++)
   {
     balls[i].x=rand()%SCREEN_WIDTH;
-    balls[i].y=10;
-    balls[i].vx=0;
-    balls[i].vy=rand()%10+5;
+    balls[i].y=rand()%SCREEN_HEIGHT;
+    balls[i].vx=rand()%40-20;
+    balls[i].vy=rand()%19+1;
   }
 }
 
@@ -211,9 +211,14 @@ void render()
     balls[i].y+=balls[i].vy;
         
     // Check collision top and bottom wall
-    if(balls[i].y>SCREEN_HEIGHT)
+    if(balls[i].y>SCREEN_HEIGHT || balls[i].y<0)
     {
-      balls[i].y=0;
+      balls[i].vy*=-1;
+    }
+    // Check collision left and right wall
+    if(balls[i].x>SCREEN_WIDTH || balls[i].x<0)
+    {
+      balls[i].vx*=-1;
     }
     
     // Draw ball
