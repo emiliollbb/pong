@@ -431,13 +431,41 @@ void process_input(SDL_Event *e, int *quit)
       {
         *quit = 1;
       }
-      // Axis 0 controls player velocity
+      //User presses a key 
+      else if( e->type == SDL_KEYDOWN ) 
+      {
+        //Select surfaces based on key press 
+        switch( e->key.keysym.sym ) 
+        {
+          case SDLK_UP: pvy[1]=-1*p_v ; break; 
+          case SDLK_DOWN: pvy[1]=4; break; 
+          case SDLK_LEFT: ; break; 
+          case SDLK_RIGHT: ; break;
+	  case 'w': pvy[0]=-1*p_v; break;
+	  case 's': pvy[0]=p_v; break;
+        }
+      }
+      else if( e->type == SDL_KEYUP ) 
+      {
+        //Select surfaces based on key press 
+        switch( e->key.keysym.sym ) 
+        {
+          case SDLK_UP: pvy[1]=0 ; break; 
+          case SDLK_DOWN: pvy[1]=0; break; 
+          case SDLK_LEFT: ; break; 
+          case SDLK_RIGHT: ; break;
+	  case 'w': pvy[0]=0; break;
+	  case 's': pvy[0]=0; break;
+         }
+      }
+      /* Handle Joystick Button Presses */
+      // Joystick Axis 0 controls player velocity
       else if( e->type == SDL_JOYAXISMOTION && e->jaxis.axis == 1)
       {
         //printf("controller: %d, axis: %d, value: %d\n", e->jaxis.which, e->jaxis.axis, e->jaxis.value);
         pvy[e->jaxis.which]=p_v*e->jaxis.value/32767; 
       }
-      // Buttons
+      // Joystick Buttons
       else if( e->type == SDL_JOYBUTTONDOWN && e->jbutton.button<8)
       {
         //printf("controller: %d button: %d\n",e->jbutton.which, e->jbutton.button);
